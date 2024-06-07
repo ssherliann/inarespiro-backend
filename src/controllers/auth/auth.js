@@ -2,7 +2,6 @@ import Boom from "boom";
 import User from "../../models/user";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../../helpers/jwt";
 import ValidationSchema from "./validations";
-import redis from "../../clients/redis";
 
 const Register = async (req, res, next) => {
     const input = req.body; 
@@ -101,20 +100,7 @@ const RefreshToken = async (req, res, next) => {
 
 const Logout = async (req, res, next) => {
     try {
-        const { refresh_token } = req.body; 
-
-        if (!refresh_token) {
-            throw Boom.badRequest();
-        }
-
-        const user_id = await verifyRefreshToken(refresh_token);
-
-        const data = await redis.del(user_id);
-
-        if (!data) {
-            throw Boom.badRequest();
-        }
-
+        res.clearCookie('refreshToken'); 
         res.json({ message: "success" });
     } catch (e) {
         console.log(e);
