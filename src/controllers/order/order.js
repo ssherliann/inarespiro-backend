@@ -4,23 +4,42 @@ import OrderSchema from './validations';
 
 const Create = async (req, res) => {
   try {
-      const { address, items } = req.body;
+    const { address, items } = req.body;
 
-      if (!address) {
-          return res.status(400).json({ error: 'Address is required' });
-      }
+    // Check if address is provided
+    if (!address) {
+      return res.status(400).json({ error: 'Address is required' });
+    }
 
-      const newOrder = new Order({
-          user: req.user._id,  // Assuming user is authenticated and available in req.user
-          address,
-          items: JSON.parse(items),
-      });
+    // Parse JSON from items
+    let parsedItems;
+    try {
+      parsedItems = JSON.parse(items);
+    } catch (parseError) {
+      return res.status(400).json({ error: 'Invalid JSON format for items' });
+    }
 
-      await newOrder.save();
+    // Create new order
+    const newOrder = new Order({
+      user: req.user._id,
+      address,
+      items: parsedItems,
+    });
 
-      res.status(201).json(newOrder);
-  } catch (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
+    // Validate order with Mongoose schema
+    const validationError = newOrder.validateSync();
+    if (validationError) {
+      return res.status(400).json({ error: validationError.message });
+    }
+
+    // Save order to database
+    await newOrder.save();
+
+    // Return successful response
+    res.status(201).json(newOrder);
+  } catch (e) {
+    console.error('Internal server error:', e);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
