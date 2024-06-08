@@ -1,10 +1,15 @@
 import Order from '../../models/order';
+import OrderSchema from './validations';
 
 const Create = async (req, res) => {
   const request = req.body;
   console.log(request)
   try {
-    const { address, items } = req.body;
+    const { error } = OrderSchema.validate(request)
+
+    if (error) {
+      return next(Boom.badRequest(error));
+    }
 
     let parsedItems;
     try {
@@ -19,13 +24,9 @@ const Create = async (req, res) => {
       items: parsedItems,
     });
 
-    const validationError = newOrder.validateSync();
-    if (validationError) {
-      return res.status(400).json({ error: validationError.message });
-    }
 
-    await newOrder.save();
-
+    const savedOrder = await newOrder.save();
+    res.json(savedOrder);
     res.status(201).json(newOrder);
   } catch (e) {
     console.error('Internal server error:', e);

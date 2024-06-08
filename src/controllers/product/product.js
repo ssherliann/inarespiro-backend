@@ -12,9 +12,7 @@ const Create = async (req, res, next) => {
 
   try {
     input.photos = JSON.parse(input.photos);
-
     const product = new Product(input);
-
     const savedData = await product.save();
 
     res.json(savedData);
