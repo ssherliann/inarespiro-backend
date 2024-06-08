@@ -1,4 +1,4 @@
-import Order from '../../models/order';
+import Order from '../../models/';
 import Boom from 'boom';
 import OrderSchema from './validations';
 
