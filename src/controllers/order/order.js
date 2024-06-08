@@ -2,7 +2,7 @@ import Order from '../../models/order';
 import Boom from 'boom';
 import OrderSchema from './validations';
 
-const createOrder = async (req, res) => {
+const Create = async (req, res) => {
   try {
       const { address, items } = req.body;
 
