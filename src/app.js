@@ -8,7 +8,13 @@ import './clients/db';
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: 'https://inarespiro.onrender.com',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 
 app.use(limiter);
 
