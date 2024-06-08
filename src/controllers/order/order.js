@@ -2,44 +2,31 @@ import Order from '../../models/order';
 import Boom from 'boom';
 import OrderSchema from './validations';
 
-const Create = async (req, res) => {
+const Create = async (req, res, next) => {
+  const input = req.body;
+
+  input.items = input.items ? JSON.parse(input.items) : null;
+  
+  const { error } = OrderSchema.validate(input);
+
+  if (error) {
+    return next(Boom.badRequest(error.details[0].message));
+  }
+
+  const { user_id } = req.payload;
+
   try {
-    const { address, items } = req.body;
-
-    // Check if address is provided
-    if (!address) {
-      return res.status(400).json({ error: 'Address is required' });
-    }
-
-    // Parse JSON from items
-    let parsedItems;
-    try {
-      parsedItems = JSON.parse(items);
-    } catch (parseError) {
-      return res.status(400).json({ error: 'Invalid JSON format for items' });
-    }
-
-    // Create new order
-    const newOrder = new Order({
-      user: req.user._id,
-      address,
-      items: parsedItems,
+    const order = new Order({
+      user: user_id,
+      address: input.address,
+      items: input.items,
     });
 
-    // Validate order with Mongoose schema
-    const validationError = newOrder.validateSync();
-    if (validationError) {
-      return res.status(400).json({ error: validationError.message });
-    }
+    const savedData = await order.save();
 
-    // Save order to database
-    await newOrder.save();
-
-    // Return successful response
-    res.status(201).json(newOrder);
+    res.json(savedData);
   } catch (e) {
-    console.error('Internal server error:', e);
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(e);
   }
 };
 
