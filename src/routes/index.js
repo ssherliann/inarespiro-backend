@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { verifyAccessToken } from '../helpers/jwt';
 import auth from './auth';
 import product from './product';
-import order from './order';
 
 const router = Router();
 
