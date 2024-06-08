@@ -24,21 +24,21 @@ const signAccessToken = (data) => {
 };
 
 const verifyAccessToken = (req, res, next) => {
-	const authorizationHeader = req.headers["authorization"];
-	console.log('Authorization Header:', authorizationHeader); // Логируем заголовок для отладки
+	const authorizationHeader = req.headers.authorization;
+	console.log('Authorization Header:', authorizationHeader); 
 	
 		if (!authorizationHeader) {
 		return next(Boom.unauthorized());
 		}
 	
-		const token = authorizationHeader.split(' ')[1]; // Извлекаем токен из заголовка
+		const token = authorizationHeader.split(' ')[1];
 		if (!token) {
 		return next(Boom.unauthorized());
 		}
 	
 		JWT.verify(token, process.env.JWT_SECRET, (err, payload) => {
 		if (err) {
-			console.log('JWT Verify Error:', err); // Логируем ошибку для отладки
+			console.log('JWT Verify Error:', err); 
 			return next(
 			Boom.unauthorized(
 				err.name === "JsonWebTokenError" ? "Unauthorized" : err.message
