@@ -6,7 +6,7 @@ const OrderSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user', 
     },
-    adress: {
+    address: {  // Corrected field name to address
         type: String,
         required: true,
     },

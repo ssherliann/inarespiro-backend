@@ -2,31 +2,25 @@ import Order from '../../models/order';
 import Boom from 'boom';
 import OrderSchema from './validations';
 
-const Create = async (req, res, next) => {
-  const input = req.body;
-
-  input.items = input.items ? JSON.parse(input.items) : null;
-  
-  const { error } = OrderSchema.validate(input);
-
-  if (error) {
-    return next(Boom.badRequest(error.details[0].message));
-  }
-
-  const { user_id } = req.payload;
-
+const createOrder = async (req, res) => {
   try {
-    const order = new Order({
-      user: user_id,
-      address: input.address,
-      items: input.items,
-    });
+      const { address, items } = req.body;
 
-    const savedData = await order.save();
+      if (!address) {
+          return res.status(400).json({ error: 'Address is required' });
+      }
 
-    res.json(savedData);
-  } catch (e) {
-    next(e);
+      const newOrder = new Order({
+          user: req.user._id,  // Assuming user is authenticated and available in req.user
+          address,
+          items: JSON.parse(items),
+      });
+
+      await newOrder.save();
+
+      res.status(201).json(newOrder);
+  } catch (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
