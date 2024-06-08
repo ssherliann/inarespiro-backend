@@ -19,6 +19,11 @@ const Create = async (req, res) => {
       return res.status(400).json({ error: 'Invalid JSON format for items' });
     }
 
+    // Ensure user is authenticated
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
     // Create new order
     const newOrder = new Order({
       user: req.user._id,
