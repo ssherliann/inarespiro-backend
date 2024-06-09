@@ -24,7 +24,6 @@ const Create = async (req, res) => {
       items: parsedItems,
     });
 
-
     const savedOrder = await newOrder.save();
     res.json(savedOrder);
     res.status(201).json(newOrder);
