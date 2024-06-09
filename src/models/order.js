@@ -6,6 +6,14 @@ const OrderSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user', 
     },
+    lastName: {
+        type: String,
+        required: true,
+    },
+    firstName: {
+        type: String,
+        required: true,
+    },
     address: {  
         type: String,
         required: true,

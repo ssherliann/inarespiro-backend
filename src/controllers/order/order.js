@@ -1,35 +1,21 @@
 import Order from '../../models/order';
 import OrderSchema from './validations';
 
-const Create = async (req, res) => {
-  const request = req.body;
-  console.log(request)
+const Create = async (req, res, next) => {
+  const input = req.body;
+  const { error } = OrderSchema.validate(input);
+
+  if (error) {
+    return next(Boom.badRequest(error.details[0].message));
+  }
+
   try {
-    const { error } = OrderSchema.validate(request)
+    const order = new Order(input);
+    const savedData = await order.save();
 
-    if (error) {
-      return next(Boom.badRequest(error));
-    }
-
-    let parsedItems;
-    try {
-      parsedItems = JSON.parse(items);
-    } catch (parseError) {
-      return res.status(400).json({ error: 'Invalid JSON format for items' });
-    }
-
-    const newOrder = new Order({
-      user: req.user._id,
-      address,
-      items: parsedItems,
-    });
-
-    const savedOrder = await newOrder.save();
-    res.json(savedOrder);
-    res.status(201).json(newOrder);
+    res.json(savedData);
   } catch (e) {
-    console.error('Internal server error:', e);
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(e);
   }
 };
 
