@@ -29,7 +29,7 @@ const verifyAccessToken = (req, res, next) => {
         return next(Boom.unauthorized());
     }
 
-    const token = authorizationToken.split(" ")[1]; // Assuming Bearer token format
+    const token = authorizationToken.split(" ")[1]; 
 
     JWT.verify(token, process.env.JWT_SECRET, (err, payload) => {
         if (err) {
