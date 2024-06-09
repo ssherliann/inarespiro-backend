@@ -9,7 +9,7 @@ import './clients/db';
 const app = express();
 
 const corsOptions = {
-  origin: 'https://inarespiro.onrender.com',
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
 };
@@ -17,12 +17,22 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
-  res.header(
+  res.setHeader(
     "Access-Control-Allow-Origin",
     "https://inarespiro.onrender.com"
   );
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,CONNECT,TRACE"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, X-Content-Type-Options, Accept, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers"
+  );
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  res.setHeader("Access-Control-Allow-Private-Network", true);
+  res.setHeader("Access-Control-Max-Age", 7200);
+
   next();
 });
 
