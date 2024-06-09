@@ -1,10 +1,6 @@
 import JWT from "jsonwebtoken";
 import Boom from "boom";
 
-// In-memory storage for refresh tokens
-const refreshTokensStore = {};
-
-// Function to sign access tokens
 const signAccessToken = (data) => {
     return new Promise((resolve, reject) => {
         const payload = {
@@ -27,14 +23,15 @@ const signAccessToken = (data) => {
     });
 };
 
-// Middleware to verify access tokens
 const verifyAccessToken = (req, res, next) => {
     const authorizationToken = req.headers["authorization"];
     if (!authorizationToken) {
         return next(Boom.unauthorized());
     }
 
-    JWT.verify(authorizationToken, process.env.JWT_SECRET, (err, payload) => {
+    const token = authorizationToken.split(" ")[1]; // Assuming Bearer token format
+
+    JWT.verify(token, process.env.JWT_SECRET, (err, payload) => {
         if (err) {
             return next(
                 Boom.unauthorized(
@@ -48,7 +45,6 @@ const verifyAccessToken = (req, res, next) => {
     });
 };
 
-// Function to sign refresh tokens
 const signRefreshToken = (user_id) => {
     return new Promise((resolve, reject) => {
         const payload = {
@@ -65,35 +61,25 @@ const signRefreshToken = (user_id) => {
                 reject(Boom.internal());
             }
 
-            // Store the refresh token in the in-memory store
-            refreshTokensStore[user_id] = token;
-
             resolve(token);
         });
     });
 };
 
-// Function to verify refresh tokens
 const verifyRefreshToken = (refresh_token) => {
     return new Promise((resolve, reject) => {
-        JWT.verify(refresh_token, process.env.JWT_REFRESH_SECRET, (err, payload) => {
-            if (err) {
-                return reject(Boom.unauthorized());
-            }
+        JWT.verify(
+            refresh_token,
+            process.env.JWT_REFRESH_SECRET,
+            (err, payload) => {
+                if (err) {
+                    return reject(Boom.unauthorized());
+                }
 
-            const { user_id } = payload;
-            const storedToken = refreshTokensStore[user_id];
-
-            if (!storedToken) {
-                return reject(Boom.unauthorized());
+                const { user_id } = payload;
+                resolve(user_id);
             }
-
-            if (refresh_token === storedToken) {
-                return resolve(user_id);
-            } else {
-                return reject(Boom.unauthorized());
-            }
-        });
+        );
     });
 };
 
